@@ -43,7 +43,7 @@ public class FilterLoader
 
     private final ConcurrentHashMap<String, Long> filterClassLastModified = new ConcurrentHashMap<String, Long>();
     private final ConcurrentHashMap<String, String> filterClassCode = new ConcurrentHashMap<String, String>();
-    private final ConcurrentHashMap<String, String> filterCheck = new ConcurrentHashMap<String, String>();
+    //private final ConcurrentHashMap<String, String> filterCheck = new ConcurrentHashMap<String, String>();
     private final ConcurrentHashMap<FilterType, List<ZuulFilter>> hashFiltersByType = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ZuulFilter> filtersByNameAndType = new ConcurrentHashMap<>();
 
@@ -76,12 +76,22 @@ public class FilterLoader
      */
     public ZuulFilter getFilter(String sCode, String sName) throws Exception {
 
-        if (filterCheck.get(sName) == null) {
+        /**
+         * filterClassCode no place to set it up, only get method, I thought something's wrong.
+         * and filterCheck's key and value are all sName, it can be replaced by filterClassCode.
+         */
+        /*if (filterCheck.get(sName) == null) {
             filterCheck.putIfAbsent(sName, sName);
             if (!sCode.equals(filterClassCode.get(sName))) {
                 LOG.info("reloading code " + sName);
                 filterRegistry.remove(sName);
             }
+        }*/
+        if (filterClassCode.get(sName) == null) {
+            filterClassCode.putIfAbsent(sName, sCode);
+        } else if (!sCode.equals(filterClassCode.get(sName))) {
+            LOG.info("reloading code " + sName);
+            filterRegistry.remove(sName);
         }
         ZuulFilter filter = filterRegistry.get(sName);
         if (filter == null) {
